@@ -13,6 +13,7 @@ import (
 
 const BackendKeyTFCloud = "tfcloud"
 const TFCloudAPI = "https://app.terraform.io/api/v2"
+const TFCloudHostname = "app.terraform.io"
 
 type TFCloudAttributes struct {
 	HostedStateDownloadUrl string `json:"hosted-state-download-url"`

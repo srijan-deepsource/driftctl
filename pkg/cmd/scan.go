@@ -93,6 +93,14 @@ func NewScanCmd() *cobra.Command {
 
 			opts.ConfigDir, _ = cmd.Flags().GetString("config-dir")
 
+			if backend.ContainsBackend(iacSource, backend.BackendKeyTFCloud) && opts.BackendOptions.TFCloudToken == "" {
+				tfcToken, err := backend.GetTFCloudToken()
+				if err != nil {
+					return errors.Wrap(err, "unable to get terraform cloud token")
+				}
+				opts.BackendOptions.TFCloudToken = tfcToken
+			}
+
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
