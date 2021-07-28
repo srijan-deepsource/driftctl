@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/cloudskiff/driftctl/pkg/alerter"
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
 	"github.com/r3labs/diff/v2"
@@ -99,9 +100,12 @@ func (c *Console) Write(analysis *analyser.Analysis) error {
 	}
 
 	c.writeSummary(analysis)
+	return c.WriteAlerts(analysis.Alerts())
+}
 
+func (c *Console) WriteAlerts(alerts alerter.Alerts) error {
 	enumerationErrorMessage := ""
-	for _, alerts := range analysis.Alerts() {
+	for _, alerts := range alerts {
 		for _, alert := range alerts {
 			fmt.Println(color.YellowString(alert.Message()))
 			if alert, ok := alert.(*remote.EnumerationAccessDeniedAlert); ok && enumerationErrorMessage == "" {
@@ -113,7 +117,6 @@ func (c *Console) Write(analysis *analyser.Analysis) error {
 	if enumerationErrorMessage != "" {
 		_, _ = fmt.Fprintf(os.Stderr, "\n%s\n", color.YellowString(enumerationErrorMessage))
 	}
-
 	return nil
 }
 
