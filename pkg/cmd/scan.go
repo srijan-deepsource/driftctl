@@ -258,9 +258,7 @@ func scanRun(opts *pkg.ScanOptions) error {
 
 	validOutput := false
 	for _, o := range opts.Output {
-		selectedOutput := output.GetOutput(o, opts.Quiet)
-		err = selectedOutput.Write(analysis)
-		if err != nil {
+		if err = output.GetOutput(o, opts.Quiet).Write(analysis); err != nil {
 			logrus.Errorf("Computing output %s://%s failed: %v", o.Key, o.Options["path"], err.Error())
 			continue
 		}
@@ -270,8 +268,7 @@ func scanRun(opts *pkg.ScanOptions) error {
 	// Fallback to console output if all output failed
 	if !validOutput {
 		logrus.Debug("All outputs failed to compute, fallback to console output")
-		err = output.NewConsole().Write(analysis)
-		if err != nil {
+		if err = output.NewConsole().Write(analysis); err != nil {
 			return err
 		}
 	}
