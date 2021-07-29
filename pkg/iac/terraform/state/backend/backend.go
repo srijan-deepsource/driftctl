@@ -60,12 +60,3 @@ func GetBackend(config config.SupplierConfig, opts *Options) (Backend, error) {
 func GetSupportedBackends() []string {
 	return supportedBackends[1:]
 }
-
-func ContainsBackend(configs []config.SupplierConfig, backend string) bool {
-	for _, config := range configs {
-		if config.Backend == backend {
-			return true
-		}
-	}
-	return false
-}

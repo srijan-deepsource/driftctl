@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	pkghttp "github.com/cloudskiff/driftctl/pkg/http"
 	"github.com/pkg/errors"
@@ -13,7 +14,6 @@ import (
 
 const BackendKeyTFCloud = "tfcloud"
 const TFCloudAPI = "https://app.terraform.io/api/v2"
-const TFCloudHostname = "app.terraform.io"
 
 type TFCloudAttributes struct {
 	HostedStateDownloadUrl string `json:"hosted-state-download-url"`
@@ -34,8 +34,25 @@ func NewTFCloudReader(client pkghttp.HTTPClient, workspaceId string, opts *Optio
 		return nil, err
 	}
 
+	token := opts.TFCloudToken
+	if token == "" {
+		tfConfigFile, err := getTerraformConfigFile()
+		if err != nil {
+			return nil, err
+		}
+		file, err := os.Open(tfConfigFile)
+		if err != nil {
+			return nil, err
+		}
+		reader := NewTFCloudConfigReader(file)
+		token, err = reader.GetToken()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	req.Header.Add("Content-Type", "application/vnd.api+json")
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", opts.TFCloudToken))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	res, err := client.Do(req)
 
