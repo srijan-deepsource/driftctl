@@ -3,6 +3,7 @@ package backend
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -27,9 +28,14 @@ type TFCloudBody struct {
 	Data TFCloudData `json:"data"`
 }
 
-func NewTFCloudReader(client pkghttp.HTTPClient, workspaceId string, opts *Options) (*HTTPBackend, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/workspaces/%s/current-state-version", TFCloudAPI, workspaceId), nil)
+type TFCloudBackend struct {
+	request *http.Request
+	client  pkghttp.HTTPClient
+	reader  io.ReadCloser
+}
 
+func NewTFCloudReader(client pkghttp.HTTPClient, workspaceId string, opts *Options) (*TFCloudBackend, error) {
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/workspaces/%s/current-state-version", TFCloudAPI, workspaceId), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,28 +60,47 @@ func NewTFCloudReader(client pkghttp.HTTPClient, workspaceId string, opts *Optio
 	req.Header.Add("Content-Type", "application/vnd.api+json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	res, err := client.Do(req)
+	return &TFCloudBackend{req, client, nil}, nil
+}
 
-	if err != nil {
-		return nil, err
+func (t *TFCloudBackend) Read(p []byte) (n int, err error) {
+	if t.reader == nil {
+		res, err := t.client.Do(t.request)
+		if err != nil {
+			return 0, err
+		}
+
+		if res.StatusCode < 200 || res.StatusCode >= 400 {
+			return 0, errors.Errorf("error requesting terraform cloud backend state: status code: %d", res.StatusCode)
+		}
+
+		body := TFCloudBody{}
+		bodyBytes, _ := ioutil.ReadAll(res.Body)
+		err = json.Unmarshal(bodyBytes, &body)
+		if err != nil {
+			return 0, err
+		}
+
+		rawURL := body.Data.Attributes.HostedStateDownloadUrl
+		logrus.WithFields(logrus.Fields{"hosted-state-download-url": rawURL}).Trace("Terraform Cloud backend response")
+
+		h, err := NewHTTPReader(t.client, rawURL, &Options{})
+		if err != nil {
+			return 0, err
+		}
+		n, err = h.Read(p)
+		if err != nil {
+			return 0, err
+		}
+		t.reader = h.reader
+		return n, nil
 	}
+	return t.reader.Read(p)
+}
 
-	if res.StatusCode < 200 || res.StatusCode >= 400 {
-		return nil, errors.Errorf("error requesting terraform cloud backend state: status code: %d", res.StatusCode)
+func (t *TFCloudBackend) Close() error {
+	if t.reader != nil {
+		return t.reader.Close()
 	}
-
-	bodyBytes, _ := ioutil.ReadAll(res.Body)
-
-	body := TFCloudBody{}
-	err = json.Unmarshal(bodyBytes, &body)
-
-	if err != nil {
-		return nil, err
-	}
-
-	rawURL := body.Data.Attributes.HostedStateDownloadUrl
-	logrus.WithFields(logrus.Fields{"hosted-state-download-url": rawURL}).Trace("Terraform Cloud backend response")
-
-	opt := Options{}
-	return NewHTTPReader(client, rawURL, &opt)
+	return errors.New("Unable to close reader as nothing was opened")
 }
