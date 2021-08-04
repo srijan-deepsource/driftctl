@@ -3,6 +3,7 @@ module github.com/cloudskiff/driftctl
 go 1.16
 
 require (
+	cloud.google.com/go v0.89.0
 	github.com/aws/aws-sdk-go v1.38.68
 	github.com/bmatcuk/doublestar/v4 v4.0.1
 	github.com/eapache/go-resiliency v1.2.0
@@ -34,7 +35,9 @@ require (
 	github.com/yudai/gojsondiff v1.0.0
 	github.com/zclconf/go-cty v1.7.0
 	go.uber.org/atomic v1.4.0
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
-	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
+	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	google.golang.org/api v0.52.0
+	google.golang.org/genproto v0.0.0-20210729151513-df9385d47c1b
+	google.golang.org/grpc v1.39.0 // indirect
 )
