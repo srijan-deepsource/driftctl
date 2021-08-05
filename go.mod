@@ -9,13 +9,13 @@ require (
 	github.com/eapache/go-resiliency v1.2.0
 	github.com/fatih/color v1.9.0
 	github.com/getsentry/sentry-go v0.10.0
-	github.com/go-git/go-git/v5 v5.1.0
-	github.com/hashicorp/go-getter v1.5.1
+	github.com/go-git/go-git/v5 v5.4.2
+	github.com/hashicorp/go-getter v1.5.3
 	github.com/hashicorp/go-hclog v0.9.2
 	github.com/hashicorp/go-plugin v1.3.0
-	github.com/hashicorp/go-version v1.2.1
+	github.com/hashicorp/go-version v1.3.0
 	github.com/hashicorp/terraform v0.14.0
-	github.com/hashicorp/terraform-exec v0.12.0
+	github.com/hashicorp/terraform-exec v0.14.0
 	github.com/jarcoal/httpmock v1.0.6
 	github.com/jmespath/go-jmespath v0.4.0
 	github.com/joho/godotenv v1.3.0
@@ -31,13 +31,13 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/yudai/gojsondiff v1.0.0
-	github.com/zclconf/go-cty v1.7.0
+	github.com/zclconf/go-cty v1.8.4
 	go.uber.org/atomic v1.4.0
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/api v0.52.0
 	google.golang.org/genproto v0.0.0-20210729151513-df9385d47c1b
-	google.golang.org/grpc v1.39.0 // indirect
+	google.golang.org/grpc v1.39.0
 )
